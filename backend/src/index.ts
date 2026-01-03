@@ -4,34 +4,33 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 import authRoutes from './routes/auth.routes';
 
-// ১. পরিবেশ ভেরিয়েবল লোড করা (সবার উপরে থাকা জরুরি)
+// ১. পরিবেশ ভেরিয়েবল লোড করা
 dotenv.config();
 
 const app: Application = express();
 
-// ২. মিডলওয়্যার (Middlewares)
-app.use(express.json()); // বডি পার্সার
-app.use(cors()); // ক্রস অরিজিন রিসোর্স শেয়ারিং
+// ২. মিডলওয়্যার
+app.use(express.json()); 
+app.use(cors()); 
 
-// ৩. রুটস (Routes)
+// ৩. রুটস
 app.use('/api/auth', authRoutes);
 
-// হেলথ চেক রুট (সার্ভার সচল কি না তা বোঝার জন্য)
+// হেলথ চেক রুট
 app.get('/', (req: Request, res: Response) => {
     res.status(200).json({ message: "MyMessagingApp Backend is Running! 🚀" });
 });
 
 // ৪. কনফিগারেশন এবং ডাটাবেস কানেকশন
 const PORT = process.env.PORT || 5000;
-const MONGO_URI = process.env.MONGO_URI;
 
-if (!MONGO_URI) {
-    console.error("❌ Error: MONGO_URI is missing in .env file.");
-    process.exit(1); // ডাটাবেস ছাড়া সার্ভার চালানো নিরাপদ নয়
-}
+/** * আপনার দেওয়া Atlas URL সরাসরি এখানে যুক্ত করা হলো যাতে .env এরর আর না আসে। 
+ * প্রোডাকশনে যাওয়ার সময় এটি আমরা আবার .env এ নিয়ে যাব।
+ */
+const MONGO_URI = process.env.MONGO_URI || "mongodb+srv://messagingapp2:messagingcluster2026@testingmymessage.e1kbflv.mongodb.net/?appName=Testingmymessage";
 
 // ৫. ডাটাবেসে কানেক্ট হওয়া এবং সার্ভার চালু করা
-mongoose.set('strictQuery', true); // Mongoose 7+ এর জন্য ভালো প্র্যাকটিস
+mongoose.set('strictQuery', true); 
 mongoose.connect(MONGO_URI)
     .then(() => {
         console.log('-------------------------------------------');
@@ -48,9 +47,8 @@ mongoose.connect(MONGO_URI)
         process.exit(1);
     });
 
-// ৬. আনহ্যান্ডেলড এরর হ্যান্ডলিং (Global Error Handling)
+// ৬. গ্লোবাল এরর হ্যান্ডলিং
 process.on('unhandledRejection', (err: any) => {
     console.log(`Error: ${err.message}`);
     process.exit(1);
 });
-
