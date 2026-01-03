@@ -5,7 +5,7 @@ import dotenv from 'dotenv';
 import authRoutes from './routes/auth.routes';
 
 // 1️⃣ Load environment variables
-dotenv.config();
+dotenv.config({path:'./backend/.env'});
 
 const app: Application = express();
 
