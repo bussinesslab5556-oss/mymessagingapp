@@ -4,46 +4,44 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 import authRoutes from './routes/auth.routes';
 
-// ✅ Correct dotenv config
 dotenv.config();
 
 const app: Application = express();
 
-// Middleware
+// ✅ প্রোডাকশন গ্রেড মিডলওয়্যার
 app.use(express.json());
-app.use(cors());
+app.use(cors({
+    origin: '*', // আপাতত সব এলাউ করা হলো যাতে মোবাইল থেকে সমস্যা না হয়
+    credentials: true
+}));
 
-// Routes
+// রুটস
 app.use('/api/auth', authRoutes);
 
-// Health check
 app.get('/', (req: Request, res: Response) => {
-    res.status(200).json({
-        message: 'MyMessagingApp Backend is Running! 🚀'
-    });
+    res.status(200).json({ message: 'MyMessagingApp Backend is Running! 🚀' });
 });
 
-// Config
 const PORT = process.env.PORT || 5000;
 const MONGO_URI = process.env.MONGO_URI;
 
 if (!MONGO_URI) {
-    console.error('❌ MONGO_URI is not defined in .env file');
+    console.error('❌ MONGO_URI missing');
     process.exit(1);
 }
 
-// MongoDB
 mongoose.set('strictQuery', true);
-
 mongoose.connect(MONGO_URI)
     .then(() => {
         console.log('✅ Connected to MongoDB Atlas Successfully!');
-        app.listen(PORT, () => {
-            console.log(`🚀 Server running on port ${PORT}`);
-        });
+        app.listen(PORT, () => console.log(`🚀 Server on port ${PORT}`));
     })
     .catch((err) => {
-        console.error('❌ MongoDB Connection Failed');
-        console.error(err.message);
+        console.error('❌ MongoDB Connection Failed:', err.message);
         process.exit(1);
     });
+
+// ✅ প্রিভেন্ট সার্ভার ক্রাশ
+process.on('uncaughtException', (err) => {
+    console.error('There was an uncaught error', err);
+});
